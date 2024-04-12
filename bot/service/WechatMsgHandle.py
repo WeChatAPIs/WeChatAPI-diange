@@ -3,6 +3,7 @@ import re
 
 import requests
 
+from bot.config.config_loader import SEND_MUSIC_TEMPLATE, MUSIC_BASE_PATH
 from bot.infrastructure.chatgpt.OpenAIHelper import OpenAIHelper
 from bot.infrastructure.wexin import SendMsgNativeApi
 
@@ -87,12 +88,22 @@ class WechatMsgHandle:
         if wantAndSong[0] == "否":
             # 不想听歌
             return
+
         # 想听歌
         songName = wantAndSong[1]
-        #todo 查询歌 并发送xml
+        songjson = requests.get(MUSIC_BASE_PATH + "/cloudsearch?limit=1&type=1&keywords=" + songName).json()
+        songId = songjson["result"]["songs"][0]["id"]
+        picUrl = songjson["result"]["songs"][0]["al"]['picUrl']
+        artName = songjson["result"]["songs"][0]["ar"]['name']
+        songjson = requests.get(MUSIC_BASE_PATH + "/song/url/v1?id=" + songId + "&level=exhigh").json()
+        mp3Url = songjson["data"][0]['url']
+        XML = SEND_MUSIC_TEMPLATE.replace("{url}", picUrl) \
+            .replace("{mp3url}", mp3Url) \
+            .replace("{img}", picUrl) \
+            .replace("{songName}", songName) \
+            .replace("{artName}", artName)
 
-        # 调用微信发送消息接口
-        # SendMsgNativeApi.send_xml_message(wechatId, groupId if groupId else userId, "")
+        SendMsgNativeApi.send_xml_message(wechatId, groupId if groupId else userId, XML)
         return
 
     def handle_channel_message(self, wechatId, msgId, fromWechatId, msgContent, msgXml, response_content_body,
