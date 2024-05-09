@@ -2,7 +2,7 @@ import json
 import os
 
 from dotenv import load_dotenv
-
+load_dotenv()
 MUSIC_BASE_PATH = os.environ.get('MUSIC_BASE_PATH')
 def loadWechatConfig():
     # 打开并读取 JSON 文件
@@ -40,7 +40,7 @@ WechatConfig_requestUrl = getWechatConfig("requestUrl")
 WechatConfig_enable_auto_verify = getWechatConfig("enableAddFriend")
 
 SEND_MUSIC_TEMPLATE = """
-<appmsg appid=\"wx8dd6ecd81906fd84\" sdkver=\"0\">\n\t\t
+<appmsg appid=\"\" sdkver=\"0\">\n\t\t
     <title>{songName}</title>\n\t\t
     <des>{artName}</des>\n\t\t
     <type>3</type>\n\t\t

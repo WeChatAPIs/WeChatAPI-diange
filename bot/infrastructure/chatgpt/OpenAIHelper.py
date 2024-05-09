@@ -83,7 +83,8 @@ class OpenAIHelper:
                 'max_tokens': 50,
                 'presence_penalty': 0.0,
                 'frequency_penalty': 0.0,
-                'stream': False
+                'stream': False,
+                'response_format':{"type": "json_object"}
             }
             return self.openai_client.chat.completions.create(**common_args)
         except openai.RateLimitError as e:

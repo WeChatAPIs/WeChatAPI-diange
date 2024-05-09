@@ -1,3 +1,4 @@
+import json
 import logging
 import re
 
@@ -54,48 +55,29 @@ class WechatMsgHandle:
     def getMusicResponse(self, wechatId, userId, msgContent, groupId=None):
         chatId = userId if not groupId else groupId + userId
         # 这里演示，就写死prompt了，大家别学我，变量要写到配置中，养成良好的编程习惯
-        initPrompt = """帮我分析出以下几点：
-1、是否有听歌的意向
-2、给我一个符合语境的歌名
-
-#输出案例#
-{是/否}
-{歌名}
-
-#案例#
--输入：
-听一首安静的歌吧
--输出：
-是
-漂洋过海来看你
-
-- 输入：
-有事没事听忐忑
--输出：
-是
-忐忑
-
--输入：
-下班了，不知道该干嘛
--输出：
-否
-无
+        initPrompt = """帮我分析出以下几点，将用JSON格式返回，格式为 {"intention":"是/否", "songName":"歌名"}：
+        1、是否有听歌的意向
+        2、给我一个符合该语境的歌名
 """
         aiAnswer = self.chatgpt_client.get_chat_response(chat_id=chatId, query=msgContent,
                                                          prompt=initPrompt)
         # 从aiAnswer中解析出是否想听歌、歌名
-        wantAndSong = aiAnswer.split("\n")
-        if wantAndSong[0] == "否":
+        aiJson = json.loads(aiAnswer)
+        if aiJson['intention'] == "否":
             # 不想听歌
             return
 
         # 想听歌
-        songName = wantAndSong[1]
-        songjson = requests.get(MUSIC_BASE_PATH + "/cloudsearch?limit=1&type=1&keywords=" + songName).json()
+        songName = aiJson['songName']
+        songData = requests.get(MUSIC_BASE_PATH + "/cloudsearch?limit=1&type=1&keywords=" + songName,proxies={"https": "http://127.0.0.1:10809"})
+        songjson= songData.json()
         songId = songjson["result"]["songs"][0]["id"]
         picUrl = songjson["result"]["songs"][0]["al"]['picUrl']
-        artName = songjson["result"]["songs"][0]["ar"]['name']
-        songjson = requests.get(MUSIC_BASE_PATH + "/song/url/v1?id=" + songId + "&level=exhigh").json()
+        artName = songjson["result"]["songs"][0]["ar"][0]['name']
+        headers = {
+            'cookie': songData.headers['set-cookie'],
+        }
+        songjson = requests.get(MUSIC_BASE_PATH + "/song/url/v1?id=" + str(songId) + "&level=exhigh",proxies={"https": "http://127.0.0.1:10809"},headers=headers).json()
         mp3Url = songjson["data"][0]['url']
         XML = SEND_MUSIC_TEMPLATE.replace("{url}", picUrl) \
             .replace("{mp3url}", mp3Url) \

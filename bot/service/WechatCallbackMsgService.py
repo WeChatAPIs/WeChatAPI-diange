@@ -213,6 +213,6 @@ class WechatCallbackMsgService:
         msgContent = response_content_body["content"]
         msgXml = response_content_body["reversed1"]
         msgTime = response_content_body["createtime"]
-        adminMsgFlag = self.WechatMsgHandleHandle.chekAdminMsgFlag(wechatId, response_content_body)
+        adminMsgFlag = False
         self.switMsgType.get(case, self.handle_other_msg_type)(wechatId, msgId, fromWechatId, msgContent, msgXml,
                                                                      msgTime, adminMsgFlag, response_content_body)
