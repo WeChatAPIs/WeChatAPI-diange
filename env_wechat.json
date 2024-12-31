@@ -1,0 +1,18 @@
+{
+  "注意点": {
+    "enable": false,
+    "注意-1": "改完json要记得重启项目噢"
+  },
+  "wxid_xxxx": {
+    "nickname": "小明",
+    "字段说明-nickname": "微信昵称，方便知道是哪个微信号，选填",
+    "requestUrl": "http://127.0.0.1:8888/api/",
+    "字段说明-requestUrl": "api地址",
+    "enable": true,
+    "字段说明-enable": "总开关，如果enable=true,enableAddFriend=false,表示不开启自动通过好友申请",
+    "enableMusic": true,
+    "字段说明-enableMusic": "受总开关影响，是否开启自动回复音乐",
+    "enableAddFriend": true,
+    "字段说明-enableAddFriend": "受总开关影响，是否开启自动好友申请"
+  }
+}
